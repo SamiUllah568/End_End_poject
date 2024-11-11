@@ -5,6 +5,8 @@ import dill
 from src.logger import logging
 from sklearn.metrics import r2_score
 
+from sklearn.model_selection import GridSearchCV
+
 
 def save_object(file_path,obj):
     try:
@@ -19,13 +21,23 @@ def save_object(file_path,obj):
 
 
 
-def evaluate_models(X_train,y_train,X_test,y_test , models):
+def evaluate_models(X_train,y_train,X_test,y_test , models , param):
     try:
         report={}
+
         for model_name, model_class in models.items():
             model = model_class
 
-            model.fit(X_train , y_train)
+            para = param[model_name]
+            logging.info(f"Starting evaluation of {model_name}")
+            gs = GridSearchCV(model_class , para , cv=3)
+            logging.info(f"Performing GridSearchCV on {model_name} with parameters {para}")
+            gs.fit(X_train,y_train)
+
+            model.set_params(**gs.best_params_)
+            model.fit(X_train,y_train)
+
+            #model.fit(X_train , y_train)
 
             y_train_pred = model.predict(X_train)
             y_test_pred = model.predict(X_test)
