@@ -6,4 +6,5 @@ xgboost
 matplotlib
 seaborn
 dill
--e .
+flask
+# -e .
